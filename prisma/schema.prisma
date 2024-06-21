@@ -1,0 +1,146 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model accounts {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  companyId Int
+  password  String
+  firstName String?
+  lastName  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy Int?
+  updatedBy Int?
+  deleted   Boolean   @default(false)
+  users     users[]
+  company   companies @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model users {
+  id               Int               @id @default(autoincrement())
+  accountId        Int
+  isActive         Int
+  invitationStatus InvitationStatus
+  roles            Roles
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  createdBy        Int?
+  updatedBy        Int?
+  deleted          Boolean           @default(false)
+  account          accounts          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  contact          contacts[]
+  userProperty     user_properties[]
+}
+
+model user_properties {
+  id                  Int                        @id @default(autoincrement())
+  usersId             Int
+  propertiesId        Int
+  createdAt           DateTime                   @default(now())
+  updatedAt           DateTime                   @updatedAt
+  users               users?                     @relation(fields: [usersId], references: [id])
+  properties          properties?                @relation(fields: [propertiesId], references: [id])
+  userPropertyContact user_properties_contacts[]
+}
+
+model user_properties_contacts {
+  id              Int              @id @default(autoincrement())
+  userPropertyId  Int
+  contactsId      Int
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  user_properties user_properties? @relation(fields: [userPropertyId], references: [id])
+  contacts        contacts?        @relation(fields: [contactsId], references: [id])
+}
+
+model contacts {
+  id                  Int                        @id @default(autoincrement())
+  userId              Int
+  email               String?
+  phoneNumber         String?
+  taxCode             String?
+  user                users                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt           DateTime                   @default(now())
+  updatedAt           DateTime                   @updatedAt
+  deleted             Boolean                    @default(false)
+  userPropertyContact user_properties_contacts[]
+}
+
+model companies {
+  id             Int          @id @default(autoincrement())
+  name           String
+  companyMailbox String?      @unique
+  accounts       accounts[]
+  properties     properties[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deleted        Boolean      @default(false)
+}
+
+model properties {
+  id           Int               @id @default(autoincrement())
+  companyId    Int
+  parentId     Int?
+  streetLine   String
+  status       PropertyStatus
+  type         TypeProperty
+  company      companies         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  parent       properties?       @relation("ChildToParent", fields: [parentId], references: [id])
+  children     properties[]      @relation("ChildToParent")
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  createdBy    Int?
+  updatedBy    Int?
+  deleted      Boolean           @default(false)
+  userProperty user_properties[]
+}
+
+model otps {
+  id        Int      @id @default(autoincrement())
+  otpCode   String   @db.VarChar(10)
+  createdAt DateTime @default(now())
+  expiredAt DateTime
+}
+
+enum InvitationStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  UNAVAILABLE
+  PENDING
+  SOLD
+  CANCELED
+  MAINTENANCE
+  RENTED
+}
+
+enum Roles {
+  ADMIN
+  PROPERTY_MANAGER
+  OWNER
+  COMPANY_OWNER
+  TENANT
+}
+
+enum TypeProperty {
+  BUILDING
+  UNIT
+}

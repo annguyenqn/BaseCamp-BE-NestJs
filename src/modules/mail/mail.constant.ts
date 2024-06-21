@@ -1,0 +1,13 @@
+export const HOST = 'http://localshost:3000/sign-up?token=';
+export const INVITE_SUBJECT = 'Invitation to join our platform';
+export const INVITE_TEXT = 'Click the link to sign up';
+export const OTP_SUBJECT = 'Your OTP';
+export const OTP_TEXT = 'Your otp : ';
+export const SECRET = 'SECRET';
+export const TIME_EXPIRE = '5m';
+export const MAIL_SERVICE = 'MAIL_SERVICE';
+export const MAIL_SERVICE_NAME = 'gmail';
+export const MAIL_USER = 'MAIL_USER';
+export const MAIL_PASS = 'MAIL_PASS';
+export const MAIL_FROM = 'MAIL_FROM ';
+export const EMAIL_NOREPLY = 'noreply@example.com';

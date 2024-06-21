@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:latest
+    container_name: ncc_property_manager
+    restart: always
+    environment:
+      POSTGRES_USER: an_nguyen
+      POSTGRES_PASSWORD: 123456a@
+      POSTGRES_DB: ncc_property_manager
+    volumes:
+      - ./database:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    command: --maxmemory 256mb --maxmemory-policy allkeys-lru --appendonly yes
+    volumes:
+      - ./redis/dаta:/data
+      - ./redis/config/redis.conf:/usr/local/etc/redis/redis.confs
+    environment:
+      - REDIS_PASSWORD=my-password
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
